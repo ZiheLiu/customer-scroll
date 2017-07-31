@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>自定义滚动条</title>
+
+  <link rel="stylesheet" href=./css/base.css>
+</head>
+
+<body>
+<div id="container">
+  <div id="div1">
+    相信很多人都遇到过在设计中自定义滚动条样式的情景，之前我都是努力说服设计师接受浏览器自带的滚动条样式，但是这样只能规避还是解决不了问题，最近在项目中遇到了，正好来总结一下。当然，兼容所有浏览器的滚动条样式目前是不存在的。 IE下的滚动条样式 IE是最早提供滚动条的样式支持，好多年了，但是其它浏览器一直没有支持，IE独孤求败了。 这些样式规则很简单： scrollbar-arrow-color: color; /*三角箭头的颜色*/ scrollbar-face-color: color; /*立体滚动条的颜色（包括箭头部分的背景色）*/
+    scrollbar-3dlight-color: color; /*立体滚动条亮边的颜色*/ scrollbar-highlight-color: color; /*滚动条的高亮颜色（左阴影？）*/ scrollbar-shadow-color: color; /*立体滚动条阴影的颜色*/ scrollbar-darkshadow-color: color; /*立体滚动条外阴影的颜色*/ scrollbar-track-color: color; /*立体滚动条背景颜色*/ scrollbar-base-color:
+    color; /*滚动条的基色*/ 大概就这些，你也可以定义cursor来定义滚动条的鼠标手势。 这里，很久以前danger做了个基于Flash的可视化工具，简单但是好用选中CSS选项即可自动生成CSS样式，这里不再过多的介绍了。嗯，多谢大猫老湿推荐。 webkit的自定义滚动条样式 yes，这里才是今天要重点介绍的。 从上一部分的样式名中就可以看到，IE只能定义相关部分的color等属性，这样太不灵活了。 webkit最近实现了对滚动条的支持，先看一个简单的demo：
+  </div>
+  <div id="div2">
+    <div id="div3"></div>
+  </div>
+</div>
+<script src="./js/base.js"></script>
+</body>
+
+</html>
