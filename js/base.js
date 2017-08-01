@@ -90,6 +90,9 @@ let Scroll = (function () {
 
     this.setTop = function (top) {
       let maxTop = (content.offsetHeight - scroll.offsetHeight) * scale
+      if (maxTop <= 1e-5) {
+        return
+      }
 
       if (top < 0) {
         top = 0
