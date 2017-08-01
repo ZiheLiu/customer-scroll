@@ -7,6 +7,8 @@ let Scroll = (function () {
 
     const context = this
 
+    let resizeObj = null
+
     function addEvent (obj, event, fun) {
       if (obj.attachEvent) {
         obj.attachEvent('on' + event, fun)
@@ -15,29 +17,35 @@ let Scroll = (function () {
       }
     }
 
-    this.scale = scroll.offsetHeight / content.offsetHeight
+     function mousewheel (e) {
+      let ev = e || event
+      let isDown = ev.wheelDelta ? ev.wheelDelta < 0 : ev.detail > 0
+
+      if (isDown) {
+        context.setTop(scrollBox.offsetTop + 10)
+      } else {
+        context.setTop(scrollBox.offsetTop - 10)
+      }
+
+      if (e.preventDefault) {
+        e.preventDefault()
+      }
+
+      return false
+    }
+
+    let scale = null
 
     this.initDefault = function () {
       this.initScrollBox()
       this.activeDrag()
       this.activeWheel()
+      this.activeResize()
     }
 
     this.initScrollBox = function () {
-      scrollBox.style.height = scroll.offsetHeight * this.scale + 'px'
-    }
-
-    this.setTop = function (top) {
-      let maxTop = (content.offsetHeight - scroll.offsetHeight) * this.scale
-
-      if (top < 0) {
-        top = 0
-      } else if (top > maxTop) {
-        top = maxTop
-      }
-
-      scrollBox.style.top = top + 'px'
-      content.style.top = -top / this.scale + 'px'
+      scale = scroll.offsetHeight / content.offsetHeight
+      scrollBox.style.height = scroll.offsetHeight * scale + 'px'
     }
 
     this.activeDrag = function () {
@@ -74,27 +82,50 @@ let Scroll = (function () {
     }
 
     this.activeWheel = function () {
-      addEvent(content, 'mousewheel', this.mousewheel)
-      addEvent(content, 'DOMMouseScroll', this.mousewheel)
-      addEvent(scroll, 'mousewheel', this.mousewheel)
-      addEvent(scroll, 'DOMMouseScroll', this.mousewheel)
+      addEvent(content, 'mousewheel', mousewheel)
+      addEvent(content, 'DOMMouseScroll', mousewheel)
+      addEvent(scroll, 'mousewheel', mousewheel)
+      addEvent(scroll, 'DOMMouseScroll', mousewheel)
     }
 
-    this.mousewheel = function (e) {
-      let ev = e || event
-      let isDown = ev.wheelDelta ? ev.wheelDelta < 0 : ev.detail > 0
+    this.setTop = function (top) {
+      let maxTop = (content.offsetHeight - scroll.offsetHeight) * scale
 
-      if (isDown) {
-        context.setTop(scrollBox.offsetTop + 10)
-      } else {
-        context.setTop(scrollBox.offsetTop - 10)
+      if (top < 0) {
+        top = 0
+      } else if (top > maxTop) {
+        top = maxTop
       }
 
-      if (e.preventDefault) {
-        e.preventDefault()
-      }
+      scrollBox.style.top = top + 'px'
+      content.style.top = -top / scale + 'px'
+    }
 
-      return false
+    this.activeResize = function () {
+      if (!resizeObj) {
+        resizeObj = document.createElement('object')
+        resizeObj.setAttribute('style',
+          'display: block; ' +
+          'position: absolute; ' +
+          'top: 0; ' +
+          'left: 0; ' +
+          'height: 100%; ' +
+          'width: 100%; ' +
+          'overflow: hidden;' +
+          'opacity: 0; ' +
+          'pointer-events: none; ' +
+          'z-index: -1;');
+        resizeObj.type = 'text/html';
+        resizeObj.data = 'about:blank';
+        resizeObj.onload = function () {
+          this.contentDocument.defaultView.addEventListener('resize', function () {
+            context.initScrollBox()
+            context.setTop(scrollBox.offsetTop)
+          })
+        }
+
+        content.appendChild(resizeObj);
+      }
     }
   }
 
