@@ -1,85 +1,107 @@
-var oContainer = document.getElementById("container"),
-  oDiv1 = document.getElementById("div1"),
-  oDiv2 = document.getElementById("div2"),
-  oDiv3 = document.getElementById("div3");
+let Scroll = (function () {
+  let _scroll = function () {
+    const container = document.querySelector('.scroll-container')
+    const content = container.querySelector(".content")
+    const scroll = container.querySelector(".scroll")
+    const scrollBox = scroll.querySelector(".scroll-box")
 
-oDiv3.onmousedown = function(e) {
-  e = e || event;
+    const context = this
 
-  var disY = e.clientY - this.offsetTop;
-
-  if (oDiv3.setCapture) {
-    oDiv3.onmousemove = fnMove;
-    oDiv3.onmouseup = fnUp;
-    oDiv3.setCapture();
-  } else {
-    document.onmousemove = fnMove;
-    document.onmouseup = fnUp;
-  }
-
-  function fnMove(ev) {
-    ev = ev || event;
-
-    var t = ev.clientY - disY;
-    setTop(t);
-  };
-
-  function fnUp() {
-    this.onmousemove = null;
-    this.onmouseup = null;
-
-    if (this.releaseCapture) {
-      this.releaseCapture();
+    function addEvent (obj, event, fun) {
+      if (obj.attachEvent) {
+        obj.attachEvent('on' + event, fun)
+      } else {
+        obj.addEventListener(event, fun, false)
+      }
     }
-  };
 
-  return false;
-};
+    this.scale = scroll.offsetHeight / content.offsetHeight
 
-function setTop(t) {
-  var down = oDiv2.offsetHeight - oDiv3.offsetHeight;
+    this.initDefault = function () {
+      this.initScrollBox()
+      this.activeDrag()
+      this.activeWheel()
+    }
 
-  if (t < 0) {
-    t = 0;
-  } else if (t > down) {
-    t = down
+    this.initScrollBox = function () {
+      scrollBox.style.height = scroll.offsetHeight * this.scale + 'px'
+    }
+
+    this.setTop = function (top) {
+      let maxTop = (content.offsetHeight - scroll.offsetHeight) * this.scale
+
+      if (top < 0) {
+        top = 0
+      } else if (top > maxTop) {
+        top = maxTop
+      }
+
+      scrollBox.style.top = top + 'px'
+      content.style.top = -top / this.scale + 'px'
+    }
+
+    this.activeDrag = function () {
+      scrollBox.onmousedown = function(e) {
+        e = e || event
+
+        let disY = e.clientY - this.offsetTop
+
+        if (scrollBox.setCapture) {
+          scrollBox.onmousemove = fnMove
+          scrollBox.onmouseup = fnUp
+          scrollBox.setCapture()
+        } else {
+          document.onmousemove = fnMove
+          document.onmouseup = fnUp
+        }
+
+        function fnMove(ev) {
+          ev = ev || event
+          context.setTop(ev.clientY - disY)
+        }
+
+        function fnUp() {
+          this.onmousemove = null
+          this.onmouseup = null
+
+          if (this.releaseCapture) {
+            this.releaseCapture()
+          }
+        }
+
+        return false
+      }
+    }
+
+    this.activeWheel = function () {
+      addEvent(content, 'mousewheel', this.mousewheel)
+      addEvent(content, 'DOMMouseScroll', this.mousewheel)
+      addEvent(scroll, 'mousewheel', this.mousewheel)
+      addEvent(scroll, 'DOMMouseScroll', this.mousewheel)
+    }
+
+    this.mousewheel = function (e) {
+      let ev = e || event
+      let isDown = ev.wheelDelta ? ev.wheelDelta < 0 : ev.detail > 0
+
+      if (isDown) {
+        context.setTop(scrollBox.offsetTop + 10)
+      } else {
+        context.setTop(scrollBox.offsetTop - 10)
+      }
+
+      if (e.preventDefault) {
+        e.preventDefault()
+      }
+
+      return false
+    }
   }
 
-  oDiv3.style.top = t + 'px';
+  return _scroll
+})()
 
-  var scale = t / down;
-  oDiv1.style.top = -(oDiv1.offsetHeight - oContainer.offsetHeight) * scale + 'px';
-}
-
-addEvent(oDiv1, 'mousewheel', mousewheel);
-addEvent(oDiv1, 'DOMMouseScroll', mousewheel);
-addEvent(oDiv2, 'mousewheel', mousewheel);
-addEvent(oDiv2, 'DOMMouseScroll', mousewheel);
-
-function addEvent(obj, oEvent, fn) {
-  if (obj.attachEvent) {
-    obj.attachEvent('on' + oEvent, fn);
-  } else {
-    obj.addEventListener(oEvent, fn, false);
-  }
-}
-
-function mousewheel(e) {
-  var ev = e || event,
-    bDown = false;
-
-  bDown = ev.wheelDelta ? ev.wheelDelta < 0 : ev.detail > 0;
-
-  if (bDown) {
-    setTop(oDiv3.offsetTop + 10);
-  } else {
-    setTop(oDiv3.offsetTop - 10);
-  }
-
-  //FF,绑定事件，阻止默认事件
-  if (e.preventDefault) {
-    e.preventDefault();
-  }
-
-  return false;
+window.onload = function () {
+  let scroll = new Scroll()
+  scroll.initDefault()
 }

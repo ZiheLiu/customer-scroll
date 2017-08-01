@@ -1,33 +1,32 @@
-#container {
-  width: 300px;
+.scroll-container {
+  /*width: 300px;*/
   height: 200px;
   border: solid 1px grey;
-  margin: 0 auto;
   position: relative;
   overflow: hidden;
 }
 
-#div1 {
-  width: 280px;
+.content {
+  /*width: 280px;*/
   position: absolute;
   left: 0;
+  right: 10px;
   padding: 5px;
 }
 
-#div2 {
-  width: 10px;
-  height: 200px;
-  background-color: #999;
+.scroll {
   position: absolute;
   right: 0;
+  width: 10px;
+  height: 100%;
+  background-color: #999;
 }
 
-#div3 {
-  width: 10px;
-  height: 30px;
-  background-color: #666;
+.scroll-box {
   position: absolute;
   left: 0;
   top: 0;
+  width: 10px;
+  background-color: #666;
   cursor: pointer;
 }
